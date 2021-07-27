@@ -50,6 +50,9 @@ def test(X, folded_test_datasets_list, trained_estimators_list, euclidean_nn_mod
     
     for algorithm, folds_metrics in algorithms_folds_metrics_dict.items():
         algorithms_folds_metrics_dict[algorithm] = np.array(folds_metrics)
+    
+    # presenting results
+    print_test_results(algorithms_folds_metrics_dict)
 
 def test_loop(X, test_ds, trained_encoder, trained_decoder, euclidean_nn_model, siamese_nn_model, trained_siamese_network, test_step_func, args):
     """
