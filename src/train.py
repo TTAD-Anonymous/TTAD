@@ -144,8 +144,6 @@ def training_loop(train_ds, train_step_func, features_dim, args):
         epoch_loss_mean = tf.keras.metrics.Mean()
 
         for step, (x_batch_train, y_batch_train) in enumerate(train_ds):
-            # if step%1000 == 0: print(f'Step: {step} in epoch {epoch}')
-            # model_train_step = Solver.train_step()
             loss = train_step_func(x_batch_train, encoder, decoder, optimizer, loss_func)
 
             # keep track of the metrics
