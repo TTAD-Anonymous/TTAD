@@ -27,7 +27,7 @@ def load_preprocessed(dataset_name):
     ----------
     dataset_name: str. The name of the preprocessed dataset to load
     """
-
+    dataset_name = dataset_name.capitalize()    
     disk_path = '../datasets/' + dataset_name
 
     print(f"--- Loading preprocessed {dataset_name} dataset ---")
