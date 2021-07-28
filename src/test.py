@@ -60,7 +60,7 @@ def test(X, folded_test_datasets_list, trained_estimators_list, trained_siamese_
         algorithms_folds_metrics_dict[algorithm] = np.array(folds_metrics)
     
     # presenting results
-    print_test_results(algorithms_folds_metrics_dict)
+    print_test_results(algorithms_folds_metrics_dict, args)
 
 def test_loop(X, test_ds, trained_encoder, trained_decoder, euclidean_nn_model, siamese_nn_model, trained_siamese_network, test_step_func, args):
     """
@@ -221,15 +221,17 @@ def generate_oversampling_tta_samples(oversampling_batch_neighbors_features, num
     
     return oversampling_batch_tta_samples
 
-def print_test_results(algorithms_folds_metrics):
+def print_test_results(algorithms_folds_metrics, args):
     """
     Printing the results metrics of all of the evaluated algorithms
 
     Parameters
     ----------
     algorithms_folds_metrics: dictionaty. A dictionary that holds the results metrics for every algorithm in every k-fold split
+    args: argparse args. The args given to the program
     """
     
+    print(f"--- Reults on {args.n_folds}-fold cross-validation with {args.num_neighbors} neighbors and {args.num_augmentations} augmentations ---")
     for algorithm, folds_metrics in algorithms_folds_metrics.items():
         algorithm_name = algorithm.replace("_", " ")
         print("*"*100)
