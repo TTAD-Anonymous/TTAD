@@ -30,7 +30,7 @@ def train(X, y, siamese_pairs, folded_train_datasets_list, features_dim, args):
 
     trained_estimators_list = train_estimator(folded_train_datasets_list, features_dim, args)
 
-    return trained_estimators_list, euclidean_nn_model, siamese_nn_model
+    return trained_estimators_list, trained_siamese_network, euclidean_nn_model, siamese_nn_model
 
 def train_siamese_model(siamese_data, batch_size, n_epochs):
     """
@@ -60,7 +60,7 @@ def train_siamese_model(siamese_data, batch_size, n_epochs):
     )
 
     # return only the internal model because with this part we are making use later
-    return siamese_netowrk.internal_model
+    return siamese_network.internal_model
 
 def train_nn_model(nn_data, trained_siamese_network, with_cuml):
     """
@@ -107,7 +107,7 @@ def train_estimator(folded_train_datasets_list, features_dim, args):
 
     estimators_list = []
 
-    for split_index in rnage(args.n_folds):
+    for split_index in range(args.n_folds):
         # train set-up
         train_ds = folded_train_datasets_list[split_index]
         train_step_func = train_step()
