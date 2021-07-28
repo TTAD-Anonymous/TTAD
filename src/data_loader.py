@@ -28,15 +28,15 @@ def load_preprocessed(dataset_name):
     dataset_name: str. The name of the preprocessed dataset to load
     """
     dataset_name = dataset_name.capitalize()    
-    disk_path = '../datasets/' + dataset_name
+    disk_path = '../data/' + dataset_name + "/"
 
     print(f"--- Loading preprocessed {dataset_name} dataset ---")
     # loading dataset features and labels
-    features = pd.read_pickle(disk_path + f'/{dataset_name}_features.pkl')
-    labels = pd.read_pickle(disk_path + f'/{dataset_name}_labels.pkl')
+    features = pd.read_pickle(disk_path + f'{dataset_name}_features.pkl')
+    labels = pd.read_pickle(disk_path + f'{dataset_name}_labels.pkl')
     # loading Siamese training pairs
-    siamese_pairs_X = np.load(disk_path + f'/{dataset_name}_pairs_X.npy')
-    siamese_pairs_y = np.load(disk_path + f'/{dataset_name}_pairs_y.npy')
+    siamese_pairs_X = np.load(disk_path + f'{dataset_name}_pairs_X.npy')
+    siamese_pairs_y = np.load(disk_path + f'{dataset_name}_pairs_y.npy')
 
     # getting the dimensionality of the dataset
     features_dim = features.shape[-1]

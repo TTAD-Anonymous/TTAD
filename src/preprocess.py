@@ -102,7 +102,7 @@ def preprocessing(dataset_name):
     data_file = DATASET_DATA_FILE[dataset_name]['data']
     label_col = DATASET_DATA_FILE[dataset_name]['label_col']
 
-    data_file_path = '../datasets/' + dataset_name + '/' + data_file
+    data_file_path = '../data/' + dataset_name + '/' + data_file
     
     print(f"--- Openning {dataset_name}---")
     df = pd.read_csv(data_file_path)
@@ -250,7 +250,7 @@ def save_to_disk(features, labels, siamese_pairs_X, siamese_pairs_Y, dataset_nam
     siamese_pairs_y: numpy ndarray. The siamese pairs' labels. Either 0 or 1 (same or different class)
     """
 
-    disk_path = "..datasets/" + dataset_name
+    disk_path = "../data/" + dataset_name + "/"
 
     # save preprocessed dataset
     pd.to_pickle(feautres, disk_path + f'{dataset_name}_features.pkl')
