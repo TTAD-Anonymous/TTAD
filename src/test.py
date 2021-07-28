@@ -30,7 +30,12 @@ def test(X, folded_test_datasets_list, trained_estimators_list, euclidean_nn_mod
 
     Parameters
     ----------
-
+    X: ndarray of shape (#num_samples, #features). The dataset's features
+    folded_test_datasets_list: list. The test set of each split in the k-fold
+    trained_estimators_list: list. The trained estimator of each split in hte k-fold
+    euclidean_nn_model: trained Neareset Neighbors model with euclidean distance metric
+    siamese_nn_model: trained Neareset Neighbors model with Siamese distance metric
+    args: argparse args. The args given to the program
     """
 
     # define k-fold split's metrics dict
