@@ -271,4 +271,4 @@ if __name__ == '__main__':
 
     dataset_name = args.dataset_name.capitalaize()
 
-    print(f"--- Starting Preprocess {dataset_name} Dataset ---")
+    print(f"--- Starting preprocess {dataset_name} dataset ---")
