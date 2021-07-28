@@ -25,21 +25,22 @@ def train(X, y, siamese_pairs, folded_train_datasets_list, features_dim, args):
     args. argparse args. The args given to the program
     """
 
-    trained_siamese_network = train_siamese_model(siamese_pairs)
+    trained_siamese_network = train_siamese_model(siamese_pairs, args)
     euclidean_nn_model, siamese_nn_model = train_nn_model(X, trained_siamese_network, args.with_cuml)
 
     trained_estimators_list = train_estimator(folded_train_datasets_list, features_dim, args)
 
     return trained_estimators_list, euclidean_nn_model, siamese_nn_model
 
-def train_siamese_model(siamese_data, args):
+def train_siamese_model(siamese_data, batch_size, n_epochs):
     """
     Training Siamese network
 
     Parameters
     ----------
     siamese_data: tuple. A tuple containing both siamese pairs features and labels for training the Siamese network
-    args. argparse args. The args given to the program
+    batch_size: int. The batch size used to train the Siamese network
+    n_epochs: int. The nubmer of epochs used for training the Siamese network
     """
 
     pairs_X, pairs_y = siamese_data
@@ -54,7 +55,7 @@ def train_siamese_model(siamese_data, args):
         [pairs_X[0], pairs_X[1]],
         pairs_y,
         batch_size=args.siamese_batch_size,
-        epochs=args.siamese_n_epochs
+        epochs=args.siamese_n_epochs,
         verbose=0
     )
 
