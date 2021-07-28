@@ -11,7 +11,7 @@ from autoencoder_model import Encoder, Decoder
 from siamese_model import SiameseNetwork
 
 
-def train(X, y, siamese_pairs, folded_train_datasets_list, folded_test_datasets_list, features_dim, args):
+def train(X, y, siamese_pairs, folded_train_datasets_list, features_dim, args):
     """
     Training the framework. Training anomaly detector model (AE), training NN model, training Siamese neural network.
 
@@ -21,7 +21,6 @@ def train(X, y, siamese_pairs, folded_train_datasets_list, folded_test_datasets_
     y. numpy ndarray of shape (#num_samples, ). The dataset's labels
     siamese_pairs. tuple. A tuple containing both siamese pairs features and labels for training the Siamese network
     folded_train_datasets_list. list of TF's Dataset. The training sets of every k-fold split
-    folded_test_datasets_list. list of TF's Dataset. The test set of every k-fold split
     features_dim. int. The dimensionality of the dataset
     args. argparse args. The args given to the program
     """
