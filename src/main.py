@@ -36,7 +36,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # loading the preprocessed dataset
-    print(f"--- Loading preprocessed {args.dataset_name.capitalize()} dataset ---"
+    print(f"--- Loading preprocessed {args.dataset_name.capitalize()} dataset ---")
     start_time = time.time()
     dataset_X, dataset_y, siamese_pairs, features_dim, folded_train_datasets_list, folded_test_datasets_list = load_dataset(args)
     end_time = time.time()
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # training
     print("--- Start training ---")
     start_time = time.time()
-    trained_estimators_list, euclidean_nn_model, siamese_nn_model = train(dataset_X, dataset_y, siamese_pairs, folded_train_datasets_list, features_dim, args)
+    trained_estimators_list, trained_siamese_network, euclidean_nn_model, siamese_nn_model = train(dataset_X, dataset_y, siamese_pairs, folded_train_datasets_list, features_dim, args)
     end_time = time.time()
     print("--- Training finished after: ", end='')
     get_execute_time(start_time, end_time)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     # testing
     print("--- Start testing ---")
     start_time = time.time()
-    test(dataset_X, folded_test_datasets_list, trained_estimators_list, euclidean_nn_model, siamese_nn_model, args)
+    test(dataset_X, folded_test_datasets_list, trained_estimators_list, trained_siamese_network, euclidean_nn_model, siamese_nn_model, args)
     end_time = time.time()
     print("--- Testing finished after: ", end='')
     get_execute_time(start_time, end_time)
