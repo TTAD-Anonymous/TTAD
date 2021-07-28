@@ -15,7 +15,7 @@ from test import test
 def get_execute_time(start_time, end_time):
     hours, rem = divmod(end_time - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
-    print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+    print("{:0>2}:{:0>2}:{:05.2f} ---".format(int(hours), int(minutes), seconds))
 
 if __name__ == '__main__':
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', "--dataset", required=True, dest='dataset_name', type=str, help='the dataset to preprocess and save to disk for later use')
     parser.add_argument("-n", "--neighbors", dest="num_neighbors", default=10, type=int, help="The number of neighbors to retrieve from the Neareset Neighbors model")
-    parser.add_argument("-a", "--augmentations", dest="num_augmentations", default=4, type=int, help="The number test-time augmentations to apply on every test sample")
+    parser.add_argument("-a", "--augmentations", dest="num_augmentations", default=7, type=int, help="The number test-time augmentations to apply on every test sample")
     parser.add_argument("-c", "--cuml", dest="with_cuml", default=True, type=bool, help='Whether of not to use cuML')
     parser.add_argument("-s", "--siamesebatchsize", dest="siamese_batch_size", default=64, type=int, help="Batch size used to train the Siamese network")
     parser.add_argument("-b", "--siameseecpohs", dest="siamese_n_epochs", default=10, type=int, help="Number of epochs to train with the Siamese netowrk")
