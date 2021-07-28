@@ -30,10 +30,9 @@ def load_preprocessed(dataset_name):
     dataset_name = dataset_name.capitalize()    
     disk_path = '../data/' + dataset_name + "/"
 
-    print(f"--- Loading preprocessed {dataset_name} dataset ---")
     # loading dataset features and labels
-    features = pd.read_pickle(disk_path + f'{dataset_name}_features.pkl')
-    labels = pd.read_pickle(disk_path + f'{dataset_name}_labels.pkl')
+    features = np.load(disk_path + f'{dataset_name}_features.npy')
+    labels = np.load(disk_path + f'{dataset_name}_labels.npy')
     # loading Siamese training pairs
     siamese_pairs_X = np.load(disk_path + f'{dataset_name}_pairs_X.npy')
     siamese_pairs_y = np.load(disk_path + f'{dataset_name}_pairs_y.npy')
@@ -54,7 +53,7 @@ def make_folded_datasets(X, y, n_folds):
     n_folds. int. The number of folds to split the dataset
     """
 
-    sfk = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
+    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
 
     def _gen():
         """

@@ -253,10 +253,10 @@ def save_to_disk(features, labels, siamese_pairs_X, siamese_pairs_y, dataset_nam
     disk_path = "../data/" + dataset_name + "/"
 
     # save preprocessed dataset
-    pd.to_pickle(features, disk_path + f'{dataset_name}_features.pkl')
-    pd.to_pickle(labels, disk_path + f'{dataset_name}_labels.pkl')
+    np.save(disk_path + f'{dataset_name}_features.npy', features)
+    np.save(disk_path + f'{dataset_name}_labels.npy', labels)
     # save Siamese pairs
-    np.save(disk_path + f'{dataset_name}_pairs_X.npy', siamese_pairs_X)    
+    np.save(disk_path + f'{dataset_name}_pairs_X.npy', siamese_pairs_X)
     np.save(disk_path + f'{dataset_name}_pairs_y.npy', siamese_pairs_y)
 
 if __name__ == '__main__':
