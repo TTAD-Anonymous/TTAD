@@ -11,7 +11,7 @@ from autoencoder_model import Encoder, Decoder
 from siamese_model import SiameseNetwork
 
 
-def train(X, y, siamese_pairs, folded_train_datasets_list, folded_test_datasets_list, args):
+def train(X, y, siamese_pairs, folded_train_datasets_list, folded_test_datasets_list, features_dim, args):
     """
     Training the framework. Training anomaly detector model (AE), training NN model, training Siamese neural network.
 
@@ -22,13 +22,14 @@ def train(X, y, siamese_pairs, folded_train_datasets_list, folded_test_datasets_
     siamese_pairs. tuple. A tuple containing both siamese pairs features and labels for training the Siamese network
     folded_train_datasets_list. list of TF's Dataset. The training sets of every k-fold split
     folded_test_datasets_list. list of TF's Dataset. The test set of every k-fold split
+    features_dim. int. The dimensionality of the dataset
     args. argparse args. The args given to the program
     """
 
     trained_siamese_network = train_siamese_model(siamese_pairs)
     euclidean_nn_model, siamese_nn_model = train_nn_model(X, trained_siamese_network, args.with_cuml)
 
-    trained_estimators_list = train_estimator(folded_train_datasets_list, args)
+    trained_estimators_list = train_estimator(folded_train_datasets_list, features_dim, args)
 
     return trained_estimators_list, euclidean_nn_model, siamese_nn_model
 
@@ -93,13 +94,14 @@ def train_nn_model(nn_data, trained_siamese_network, with_cuml):
 
     return euclidean_nn_model, siamese_nn_model
 
-def train_estimator(folded_train_datasets_list, args):
+def train_estimator(folded_train_datasets_list, features_dim, args):
     """
     Training the anomaly detector model (AE) for every k-fold split.
 
     Parameters
     ----------
     folded_train_datasets_list. list of TF's Dataset. The training sets of every k-fold split
+    features_dim. int. The dimensionality of the dataset
     args. argparse args. The args given to the program
     """
 
@@ -111,14 +113,14 @@ def train_estimator(folded_train_datasets_list, args):
         train_step_func = train_step()
         print(f"--- Training K-Fold Split index: {split_index+1} ---")
         # training current k-fold split
-        trained_encoder, trained_decoder = training_loop(train_ds, train_step_func, args)
+        trained_encoder, trained_decoder = training_loop(train_ds, train_step_func, features_dim, args)
 
         # adding to models list
         estimators_list.append((trained_encoder, trained_decoder))
     
     return estimators_list
 
-def training_loop(train_ds, train_step_func, args):
+def training_loop(train_ds, train_step_func, features_dim, args):
     """
     The training loop of the anomaly detector training procedure
 
@@ -126,11 +128,12 @@ def training_loop(train_ds, train_step_func, args):
     ----------
     train_ds. TF's Dataset. The trainind dataset for the trining
     train_step_func. function. The function that is used for performing single train step
+    features_dim. int. The dimensionality of the dataset
     args. argparse args. The args given to the program
     """
 
-    encoder = Encoder(input_shape=args.features_dim)
-    decoder = Decoder(original_dim=args.features_dim)
+    encoder = Encoder(input_shape=features_dim)
+    decoder = Decoder(original_dim=features_dim)
 
     # define loss function
     loss_func = tf.keras.losses.MeanSquaredError()
