@@ -153,7 +153,7 @@ def minmax_normalizer(df, features):
 
     # min-max normalization
     scaler = MinMaxScaler()
-    df[list(features)] = scaler.fit_transform(df[list(features)])
+    df[features] = scaler.fit_transform(df[features])
 
     return df
 
@@ -177,22 +177,22 @@ def generate_pairs(data):
 
     print("--- Pairing from normal data ---")
     for idx, row in tqdm(normal_data.iterrows(), total=len(normal_data)):
-        same_sample = normal_data.sample(n=1).iloc[0]
+        same_sample = normal_data.sample(n=1, random_state=42).iloc[0]
         left_list.append(row)
         right_list.append(same_sample)
         label_list.append(1)
-        different_sample = anomaly_data.sample(n=1).iloc[0]
+        different_sample = anomaly_data.sample(n=1, random_state=42).iloc[0]
         left_list.append(row)
         right_list.append(different_sample)
         label_list.append(0)
     
     print("--- Pairing from anomaly data ---")
     for idx, row in tqdm(anomaly_data.iterrows(), total=len(anomaly_data)):
-        same_sample = anomaly_data.sample(n=1).iloc[0]
+        same_sample = anomaly_data.sample(n=1, random_state=42).iloc[0]
         left_list.append(row)
         right_list.append(same_sample)
         label_list.append(1)
-        different_sample = normal_data.sample(n=1).iloc[0]
+        different_sample = normal_data.sample(n=1, random_state=42).iloc[0]
         left_list.append(row)
         right_list.append(different_sample)
         label_list.append(0)
@@ -206,7 +206,7 @@ def generate_pairs(data):
     label_df = pd.DataFrame({'label': label_list})
 
     full_df = pd.concat([left_list_data, right_list_data, label_df], axis=1)
-    full_df = full_df.sample(frac=1).reset_index(drop=True)
+    full_df = full_df.sample(frac=1, random_state=42).reset_index(drop=True)
 
     left_pairs = full_df.loc[:, left_list_data.columns]
     right_pairs = full_df.loc[:, right_list_data.columns]
@@ -262,7 +262,7 @@ def save_to_disk(features, labels, siamese_pairs_X, siamese_pairs_y, dataset_nam
 if __name__ == '__main__':
 
     # setting seed
-    np.random.seed(1234)
+    np.random.seed(42)
 
     # getting the dataset to preprocess
     parser = argparse.ArgumentParser()
