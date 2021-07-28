@@ -104,11 +104,11 @@ def preprocessing(dataset_name):
 
     data_file_path = '../data/' + dataset_name + '/' + data_file
     
-    print(f"--- Openning {dataset_name}---")
+    print(f"--- Openning {dataset_name} ---")
     df = pd.read_csv(data_file_path)
 
     # getting dataset's features
-    features = set(df.columns) - set([label_col])
+    features = list(set(df.columns) - set([label_col]))
 
     # replacing inf values with column max
     df = replace_inf_values(df, features)
@@ -124,7 +124,7 @@ def preprocessing(dataset_name):
     siamese_pairs_X, siamese_pairs_y = generate_pairs(dataset_features)
 
     # saving preprocessed datasaet and Siamese pairs to disk
-    save_to_disk(features, labels, siamese_pairs_X, siamese_pairs_y, dataset_name)
+    save_to_disk(dataset_features, dataset_labels, siamese_pairs_X, siamese_pairs_y, dataset_name)
 
 def replace_inf_values(df, features):
     """
@@ -169,7 +169,7 @@ def generate_pairs(data):
 
     # using Isolation Forest as label propagating
     print("--- Using Isolation Forest for Siamese pairs creation ---")
-    normal_data, anomaly_data = label_isolation_forest(data)
+    normal_data, anomaly_data = isolation_forest_labeling(data)
 
     left_list = []
     right_list = []
@@ -238,7 +238,7 @@ def isolation_forest_labeling(data):
 
     return normal_data, anomaly_data
 
-def save_to_disk(features, labels, siamese_pairs_X, siamese_pairs_Y, dataset_name):
+def save_to_disk(features, labels, siamese_pairs_X, siamese_pairs_y, dataset_name):
     """
     Saving preprocessed data and pairs to disk
 
@@ -253,7 +253,7 @@ def save_to_disk(features, labels, siamese_pairs_X, siamese_pairs_Y, dataset_nam
     disk_path = "../data/" + dataset_name + "/"
 
     # save preprocessed dataset
-    pd.to_pickle(feautres, disk_path + f'{dataset_name}_features.pkl')
+    pd.to_pickle(features, disk_path + f'{dataset_name}_features.pkl')
     pd.to_pickle(labels, disk_path + f'{dataset_name}_labels.pkl')
     # save Siamese pairs
     np.save(disk_path + f'{dataset_name}_pairs_X.npy', siamese_pairs_X)    
@@ -270,6 +270,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     dataset_name = args.dataset_name.capitalize()
+
+    if dataset_name not in DATASET_DATA_FILE.keys():
+        raise ValueError("Provided dataset is not supported")
 
     print(f"--- Starting preprocess {dataset_name} dataset ---")
     preprocessing(dataset_name)
