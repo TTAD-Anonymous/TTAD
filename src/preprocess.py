@@ -269,6 +269,6 @@ if __name__ == '__main__':
     parser.add_argument('-d', "--dataset", required=True, dest='dataset_name', type=str, help='the dataset to preprocess and save to disk for later use')
     args = parser.parse_args()
 
-    dataset_name = args.dataset_name.capitalaize()
+    dataset_name = args.dataset_name.capitalize()
 
     print(f"--- Starting preprocess {dataset_name} dataset ---")
