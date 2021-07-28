@@ -14,10 +14,10 @@ def load_dataset(args):
     args: argparse args. The args to the program
     """
 
-    dataset_X, dataset_y, siamese_pairs = load_preprocessed(args.dataset_name)
+    dataset_X, dataset_y, siamese_pairs, features_dim = load_preprocessed(args.dataset_name)
     folded_train_datasets_list, folded_test_datasets_list = make_folded_datasets(dataset_X, dataset_y, args.n_folds)
 
-    return dataset_X, dataset_y, siamese_pairs, folded_train_datasets_list, folded_test_datasets_list
+    return dataset_X, dataset_y, siamese_pairs, features_dim, folded_train_datasets_list, folded_test_datasets_list
 
 def load_preprocessed(dataset_name):
     """
@@ -38,7 +38,10 @@ def load_preprocessed(dataset_name):
     siamese_pairs_X = np.load(disk_path + f'/{dataset_name}_pairs_X.npy')
     siamese_pairs_y = np.load(disk_path + f'/{dataset_name}_pairs_y.npy')
 
-    return features, labels, (siamese_pairs_X, siamese_pairs_y)
+    # getting the dimensionality of the dataset
+    features_dim = features.shape[-1]
+
+    return features, labels, (siamese_pairs_X, siamese_pairs_y), features_dim
 
 def make_folded_datasets(X, y, n_folds):
     """
