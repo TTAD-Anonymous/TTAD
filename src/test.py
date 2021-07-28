@@ -9,22 +9,22 @@ from tqdm import tqdm
 from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import BorderlineSMOTE
 
-from cuml.cluster import KMeans as cuKMean
+from cuml.cluster import KMeans as cuKMeans
 from sklearn.cluster import KMeans
 
 # define compared algorithms from the Experiments section
 evaluated_algorithms = [
-    'WO_TTA_baseline',
+    'WO_TTA_Baseline',
     'Gaussian_TTA_Baseline',
-    'Euclidean_Kmeans_TTA',
-    'Siamese_Kmeans_TTA',
     'Euclidean_SMOTE_TTA',
     'Siamese_SMOTE_TTA',
     'Euclidean_BorderlineSMOTE_TTA',
-    'Siamese_BorderlineSMOTE_TTA'
+    'Siamese_BorderlineSMOTE_TTA',
+    'Euclidean_Kmeans_TTA',
+    'Siamese_Kmeans_TTA'
 ]
 
-def test(X, folded_test_datasets_list, trained_estimators_list, euclidean_nn_model, siamese_nn_model, args):
+def test(X, folded_test_datasets_list, trained_estimators_list, trained_siamese_network, euclidean_nn_model, siamese_nn_model, args):
     """
     Performing test phase on the test set with all of the compared algorithms described in the Experiments section
 
@@ -33,6 +33,7 @@ def test(X, folded_test_datasets_list, trained_estimators_list, euclidean_nn_mod
     X: ndarray of shape (#num_samples, #features). The dataset's features
     folded_test_datasets_list: list. The test set of each split in the k-fold
     trained_estimators_list: list. The trained estimator of each split in hte k-fold
+    trained_siamese_network. TF's Model. The trained siamese internal model. used to obtain embedding of each test instance
     euclidean_nn_model: trained Neareset Neighbors model with euclidean distance metric
     siamese_nn_model: trained Neareset Neighbors model with Siamese distance metric
     args: argparse args. The args given to the program
@@ -46,6 +47,8 @@ def test(X, folded_test_datasets_list, trained_estimators_list, euclidean_nn_mod
         test_ds = folded_test_datasets_list[split_index]
         trained_encoder, trained_decoder = trained_estimators_list[split_index][0], trained_estimators_list[split_index][1]
         test_step_func = test_step()
+        
+        print(f"--- Testing k-fold split index: {split_index+1} ---")
         # testing current k-fold split
         current_split_algorithms_metrics = test_loop(X, test_ds, trained_encoder, trained_decoder, euclidean_nn_model, siamese_nn_model, trained_siamese_network, test_step_func, args)
 
@@ -89,13 +92,13 @@ def test_loop(X, test_ds, trained_encoder, trained_decoder, euclidean_nn_model, 
     tqdm_total_bar = test_ds.cardinality().numpy()
     for step, (x_batch_test, y_batch_test) in tqdm(enumerate(test_ds), total=tqdm_total_bar):
         reconstruction_loss = test_step_func(x_batch_test, trained_encoder, trained_decoder, loss_func).numpy()
-        algorithms_test_loss['WO_TTA_Baseline'].append(reconstruction_loss.numpy())
+        algorithms_test_loss['WO_TTA_Baseline'].append(reconstruction_loss)
         test_labels.append(y_batch_test.numpy())
 
         # calculate euclidean nn indices
         euclidean_nn_batch_neighbors_indices = euclidean_nn_model.kneighbors(X=x_batch_test.numpy(), n_neighbors=num_neighbors, return_distance=False)
         # calculate siamese nn indices
-        test_batch_latent_features = trained_siamese_model(x_batch_test).numpy()
+        test_batch_latent_features = trained_siamese_network(x_batch_test).numpy()
         siamese_nn_batch_neighbors_indices = siamese_nn_model.kneighbors(X=test_batch_latent_features, n_neighbors=num_neighbors, return_distance=False)
 
         euclidean_nn_batch_neighbors_features = X[euclidean_nn_batch_neighbors_indices]
@@ -103,15 +106,15 @@ def test_loop(X, test_ds, trained_encoder, trained_decoder, euclidean_nn_model, 
 
         algorithms_tta_samples_dict = {
             'Gaussian_TTA_Baseline': generate_random_noise_tta_samples(x_batch_test.numpy(), num_augmentations=num_augmentations),
-            'Euclidean_Kmeans_TTA': generate_kmeans_tta_samples(euclidean_nn_batch_neighbors_features, args.with_cuml, num_augmentations=num_augmentations),
-            'Siamese_Kmeans_TTA': generate_kmeans_tta_samples(siamese_nn_batch_neighbors_features, args.with_cuml, num_augmentations=num_augmentations),
             'Euclidean_SMOTE_TTA': generate_oversampling_tta_samples(euclidean_nn_batch_neighbors_features, oversampling_method=SMOTE, num_neighbors=num_neighbors, num_augmentations=num_augmentations),
             'Siamese_SMOTE_TTA': generate_oversampling_tta_samples(siamese_nn_batch_neighbors_features, oversampling_method=SMOTE, num_neighbors=num_neighbors, num_augmentations=num_augmentations),
             'Euclidean_BorderlineSMOTE_TTA': generate_oversampling_tta_samples(euclidean_nn_batch_neighbors_features, oversampling_method=BorderlineSMOTE, num_neighbors=num_neighbors, num_augmentations=num_augmentations),
-            'Siamese_BorderlineSMOTE_TTA': generate_oversampling_tta_samples(siamese_nn_batch_neighbors_features, oversampling_method=BorderlineSMOTE, num_neighbors=num_neighbors, num_augmentations=num_augmentations)
+            'Siamese_BorderlineSMOTE_TTA': generate_oversampling_tta_samples(siamese_nn_batch_neighbors_features, oversampling_method=BorderlineSMOTE, num_neighbors=num_neighbors, num_augmentations=num_augmentations),
+            'Euclidean_Kmeans_TTA': generate_kmeans_tta_samples(euclidean_nn_batch_neighbors_features, args.with_cuml, num_augmentations=num_augmentations),
+            'Siamese_Kmeans_TTA': generate_kmeans_tta_samples(siamese_nn_batch_neighbors_features, args.with_cuml, num_augmentations=num_augmentations)
         }
         # making prediction (with the anomaly detection estimator) for every tta sample
-        algorithms_tta_reconstruction_dict = {key:test_step_func(tta_samples, trained_encoder, trained_decoder, loss_func).numpy() for algorithm, tta_samples  in algorithms_tta_samples_dict.items()}
+        algorithms_tta_reconstruction_dict = {algorithm:test_step_func(tta_samples, trained_encoder, trained_decoder, loss_func).numpy() for algorithm, tta_samples  in algorithms_tta_samples_dict.items()}
 
         # merging given test sample's prediction with its tta predictions
         for algorithm, tta_reconstruction in algorithms_tta_reconstruction_dict.items():
@@ -120,9 +123,8 @@ def test_loop(X, test_ds, trained_encoder, trained_decoder, euclidean_nn_model, 
                 combined_tta_loss = np.concatenate([[primary_loss], tta_loss])
                 algorithms_test_loss[algorithm].append(np.mean(combined_tta_loss))
     
-    # flatten all algorithms' test loss and the test_labels vectors
-    for algorithm in algorithms_test_loss.keys():
-        algorithms_test_loss[algorithm] = np.concatenate(algorithms_test_loss[algorithm], axis=0)
+    # flatten w/o tta baseline test loss and the test_labels vectors
+    algorithms_test_loss['WO_TTA_Baseline'] = np.concatenate(algorithms_test_loss['WO_TTA_Baseline'], axis=0)
     test_labels = np.concatenate(test_labels, axis=0)
     y_true = np.asarray(test_labels).astype(int)
 
@@ -229,8 +231,9 @@ def print_test_results(algorithms_folds_metrics):
     """
     
     for algorithm, folds_metrics in algorithms_folds_metrics.items():
+        algorithm_name = algorithm.replace("_", " ")
         print("*"*100)
-        print(f"---- {algorithm} ----")
+        print(f"--- {algorithm_name} ---")
         print_list = []
         for i in range(len(folds_metrics.mean(axis=0))):
             print_list.append(folds_metrics.mean(axis=0)[i])
