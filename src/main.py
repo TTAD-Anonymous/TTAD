@@ -1,0 +1,60 @@
+import os
+import time
+# ignoring TF info messages
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+import numpy as np
+import tensorflow as tf
+
+import argparse
+
+from data_loader import load_dataset
+from train import train
+from test import test
+
+def get_execute_time(start_time, end_time):
+    hours, rem = divmod(end_time - start_time, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
+if __name__ == '__main__':
+
+    # setting seed
+    tf.random.set_seed(1234)
+    np.random.seed(1234)
+
+    # getting the dataset to preprocess
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', "--dataset", required=True, dest='dataset_name', type=str, help='the dataset to preprocess and save to disk for later use')
+    parser.add_argument("-n", "--neighbors", dest="num_neighbors", default=10, type=int, help="The number of neighbors to retrieve from the Neareset Neighbors model")
+    parser.add_argument("-a", "--augmentations", dest="num_augmentations", default=4, type=int, help="The number test-time augmentations to apply on every test sample")
+    parser.add_argument("-c", "--cuml", dest="with_cuml", default=True, type=bool, help='Whether of not to use cuML')
+    parser.add_argument("-s", "--siamesebatchsize", dest="siamese_batch_size", default=64, type=int, help="Batch size used to train the Siamese network")
+    parser.add_argument("-b", "--siameseecpohs", dest="siamese_n_epochs", default=10, type=int, help="Number of epochs to train with the Siamese netowrk")
+    parser.add_argument("-e", "--epochs", dest="num_epochs", default=500, type=int, help="The numberof epochs to train with the anomaly detector model")
+    parser.add_argument("-f", "--folds", dest="n_folds", default=10, type=int, help="The number of folds in the K-Fold cross-validation")
+    args = parser.parse_args()
+
+    # loading the preprocessed dataset
+    print(f"--- Loading preprocessed {args.dataset_name.capitalize()} dataset ---"
+    start_time = time.time()
+    dataset_X, dataset_y, siamese_pairs, features_dim, folded_train_datasets_list, folded_test_datasets_list = load_dataset(args)
+    end_time = time.time()
+    print(f"--- {args.dataset_name.capitalize()} dataset ready after: ", end='')
+    get_execute_time(start_time, end_time)
+
+    # training
+    print("--- Start training ---")
+    start_time = time.time()
+    trained_estimators_list, euclidean_nn_model, siamese_nn_model = train(dataset_X, dataset_y, siamese_pairs, folded_train_datasets_list, features_dim, args)
+    end_time = time.time()
+    print("--- Training finished after: ", end='')
+    get_execute_time(start_time, end_time)
+
+    # testing
+    print("--- Start testing ---")
+    start_time = time.time()
+    test(dataset_X, folded_test_datasets_list, trained_estimators_list, euclidean_nn_model, siamese_nn_model, args)
+    end_time = time.time()
+    print("--- Testing finished after: ", end='')
+    get_execute_time(start_time, end_time)
