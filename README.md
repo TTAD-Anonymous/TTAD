@@ -22,6 +22,8 @@ To the best of our knowledge, no studies exist that utilize TTA for tabular anom
 ## Datasets
 
 These are the datasets we used in our experiments and described in the paper.
+
+As noted, the datasets were taken from [ODDS](http://odds.cs.stonybrook.edu/).
 |Dataset|#Samples|#Dim|Outliers|
 |:---:|:---:|:---:|:---:|
 |[Annthyroid](http://odds.cs.stonybrook.edu/annthyroid-dataset/)|7200|6|7.42 (%)|
