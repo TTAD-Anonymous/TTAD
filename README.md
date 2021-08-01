@@ -1,5 +1,5 @@
 # ADTTA
-Implementation of Unsupervised Diverse Test-Time Augmentation in Anomaly Detection
+The official code of the paper "Boosting Anomaly Detection using Unsupervised Diverse Test-Time Augmentation".
 
 ## Abstract
 
