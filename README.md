@@ -58,7 +58,7 @@ $ conda activate adtta
 
 * ### **Preprocessing**
         
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;First, a preprocessing on the desired dataset needs to be done.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A preprocessing phase on a desired dataset.
 
 ```bash
 $ cd src/
