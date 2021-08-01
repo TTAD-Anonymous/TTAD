@@ -10,7 +10,6 @@ To the best of our knowledge, no studies exist that utilize TTA for tabular anom
 
 ## Repository Files
 
-
 - ├──`data/`
   - └──`[dataset]/`
     - ├──`[dataset]_features.npy`: The preprocessed features of `[dataset]`
@@ -19,6 +18,20 @@ To the best of our knowledge, no studies exist that utilize TTA for tabular anom
     - └──`[dataset]_pairs_y.npy`: The labels of the pairs used for training the Siamese network of `[dataset]`
 - ├──`src/`: The source code implementation of our approach 
 
+
+## Datasets
+
+These are the datasets we used in our experiments and described in the paper.
+|Dataset|#Samples|#Dim|Outliers|
+|:---:|:---:|:---:|:---:|
+|[Annthyroid](http://odds.cs.stonybrook.edu/annthyroid-dataset/)|7200|6|7.42 (%)|
+|[Cardio](http://odds.cs.stonybrook.edu/cardiotocogrpahy-dataset/)|1831|21|9.6 (%)|
+|[Mammo](http://odds.cs.stonybrook.edu/mammography-dataset/)|11183|6|2.32 (%)|
+|[Satellite](http://odds.cs.stonybrook.edu/satellite-dataset/)|6435|36|32 (%)|
+|[Seismic](http://odds.cs.stonybrook.edu/seismic-dataset/)|2584|11|6.5 (%)|
+|[Thyroid](http://odds.cs.stonybrook.edu/thyroid-disease-dataset/)|3772|6|2.5 (%)|
+|[Vowels](http://odds.cs.stonybrook.edu/japanese-vowels-data/)|1456|12|3.4 (%)|
+|[Yeast](https://archive.ics.uci.edu/ml/datasets/Yeast)|1364|8|4.7 (%)|
 
 
 ## Dependencies
