@@ -45,3 +45,46 @@ For setting up the environment, use [Anaconda](https://www.anaconda.com/):
 $ conda env create -f environment.yml
 $ conda activate adtta
 ```
+
+
+## Running the Code
+
+**NOTES:**
+
+- A valid dataset name (instead of mammo) can be only one from the described earlier.
+- It is important to run the scripts from being inside `src/` (i.e. ```$ cd src/```)
+
+---
+
+* ### **Preprocessing**
+        
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;First, a preprocessing on the desired dataset needs to be done.
+
+```bash
+$ cd src/
+$ python preprocess.py --dataset mammo
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;From this script, 4 files are going to be generated in the desired dataset `data/` folder:
+
+&emsp;&emsp;&emsp;&emsp;- `mammo_features.npy`
+
+&emsp;&emsp;&emsp;&emsp;- `mammo_labels.npy`
+
+&emsp;&emsp;&emsp;&emsp;- `mammo_pairs_X.npy`
+
+&emsp;&emsp;&emsp;&emsp;- `mammo_pairs_y.npy`
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;With these files, you can run the train and test.
+
+---
+
+* ### **Train & Test**
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To train the estimator, as well as the Nearest Neighbors models (both Euclidean and Siamese) run:
+
+```bash
+$ cd src/
+$ python main.py --dataset mammo --neighbors 10 --augmentations 7
+```
