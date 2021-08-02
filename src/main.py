@@ -12,28 +12,27 @@ from data_loader import load_dataset
 from train import train
 from test import test
 
+
+DATASETS = ['cardio', 'mammo', 'satellite', 'seismic', 'annthyroid', 'thyroid', 'vowels', 'yeast']
+
 def get_execute_time(start_time, end_time):
     hours, rem = divmod(end_time - start_time, 3600)
     minutes, seconds = divmod(rem, 60)
     print("{:0>2}:{:0>2}:{:05.2f} ---".format(int(hours), int(minutes), seconds))
 
-if __name__ == '__main__':
+
+def run_experiment(args):
+    """
+    Running a specific experiment with the given args
+
+    Parameters
+    ----------
+    args: argparse args. The args given to the program
+    """
 
     # setting seed
     tf.random.set_seed(1234)
     np.random.seed(1234)
-
-    # getting the dataset to preprocess
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', "--dataset", required=True, dest='dataset_name', type=str, help='the dataset to preprocess and save to disk for later use')
-    parser.add_argument("-n", "--neighbors", dest="num_neighbors", default=10, type=int, help="The number of neighbors to retrieve from the Neareset Neighbors model")
-    parser.add_argument("-a", "--augmentations", dest="num_augmentations", default=7, type=int, help="The number test-time augmentations to apply on every test sample")
-    parser.add_argument("-c", "--cuml", dest="with_cuml", default=True, type=bool, help='Whether of not to use cuML')
-    parser.add_argument("-s", "--siamesebatchsize", dest="siamese_batch_size", default=64, type=int, help="Batch size used to train the Siamese network")
-    parser.add_argument("-b", "--siameseecpohs", dest="siamese_n_epochs", default=10, type=int, help="Number of epochs to train with the Siamese netowrk")
-    parser.add_argument("-e", "--epochs", dest="num_epochs", default=500, type=int, help="The numberof epochs to train with the anomaly detector model")
-    parser.add_argument("-f", "--folds", dest="n_folds", default=10, type=int, help="The number of folds in the K-Fold cross-validation")
-    args = parser.parse_args()
 
     # loading the preprocessed dataset
     print(f"--- Loading preprocessed {args.dataset_name.capitalize()} dataset ---")
@@ -58,3 +57,25 @@ if __name__ == '__main__':
     end_time = time.time()
     print("--- Testing finished after: ", end='')
     get_execute_time(start_time, end_time)
+
+if __name__ == '__main__':
+
+    # getting the dataset to preprocess
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', "--dataset", required=True, dest='dataset_name', type=str, help='the dataset to preprocess and save to disk for later use')
+    parser.add_argument("-n", "--neighbors", dest="num_neighbors", default=10, type=int, help="The number of neighbors to retrieve from the Neareset Neighbors model")
+    parser.add_argument("-a", "--augmentations", dest="num_augmentations", default=7, type=int, help="The number test-time augmentations to apply on every test sample")
+    parser.add_argument("-c", "--cuml", dest="with_cuml", default=True, type=bool, help='Whether of not to use cuML')
+    parser.add_argument("-s", "--siamesebatchsize", dest="siamese_batch_size", default=64, type=int, help="Batch size used to train the Siamese network")
+    parser.add_argument("-b", "--siameseecpohs", dest="siamese_n_epochs", default=10, type=int, help="Number of epochs to train with the Siamese netowrk")
+    parser.add_argument("-e", "--epochs", dest="num_epochs", default=500, type=int, help="The numberof epochs to train with the anomaly detector model")
+    parser.add_argument("-f", "--folds", dest="n_folds", default=10, type=int, help="The number of folds in the K-Fold cross-validation")
+    args = parser.parse_args()
+
+    # adding support for runnning all of the available datasets
+    if args.dataset_name == "all":
+        dataset_index = int(os.environ['SLURM_ARRAY_TASK_ID'])-1
+        args.dataset_name = DATASETS[dataset_index]
+    
+    # running experiments with the given program arguments
+    run_experiment(args)
