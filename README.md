@@ -1,6 +1,8 @@
 # Boosting Anomaly Detection using Unsupervised Diverse Test-Time Augmentation
 The official code of the paper "Boosting Anomaly Detection using Unsupervised Diverse Test-Time Augmentation".
 
+![proposed framework](https://github.com/nivgold/ADTTA/blob/main/framework.jpeg)
+
 ## Abstract
 
 > Anomaly Detection is a well-known task that has been studied for decades. Anomalous events occur relatively infrequently, yet they can have serious and dangerous consequences in domains such as intrusion detection in cybersecurity, credit card fraud, health care, insurance and industrial damage.
