@@ -11,6 +11,10 @@ from autoencoder_model import Encoder, Decoder
 from siamese_model import SiameseNetwork
 
 
+from sklearn.ensemble import IsolationForest
+from sklearn.svm import OneClassSVM
+
+
 def train(X, y, siamese_pairs, folded_train_datasets_list, features_dim, args):
     """
     Training the framework. Training anomaly detector model (AE), training NN model, training Siamese neural network.
@@ -110,23 +114,27 @@ def train_estimator(folded_train_datasets_list, features_dim, args):
     for split_index in range(args.n_folds):
         # train set-up
         train_ds = folded_train_datasets_list[split_index]
-        train_step_func = train_step()
+        train_step_func = ae_train_step()
         print(f"--- Training K-Fold Split index: {split_index+1} ---")
-        # training current k-fold split
-        trained_encoder, trained_decoder = training_loop(train_ds, train_step_func, features_dim, args)
+        # training AE on current k-fold split
+        trained_ae = ae_training_loop(train_ds, train_step_func, features_dim, args)
+        # training IF on current k-fold split
+        trained_if = if_training(train_ds)
+        # training OCS on current k-fold split
+        trained_ocs = ocs_training(train_ds)
 
         # adding to models list
-        estimators_list.append((trained_encoder, trained_decoder))
+        estimators_list.append({'ae': trained_ae, 'if': trained_if, 'ocs': trained_ocs})
     
     return estimators_list
 
-def training_loop(train_ds, train_step_func, features_dim, args):
+def ae_training_loop(train_ds, train_step_func, features_dim, args):
     """
-    The training loop of the anomaly detector training procedure
+    The training loop of an Autoencoder as anomaly detector
 
     Parameters
     ----------
-    train_ds. TF's Dataset. The trainind dataset for the trining
+    train_ds. TF's Dataset. The training dataset
     train_step_func. function. The function that is used for performing single train step
     features_dim. int. The dimensionality of the dataset
     args. argparse args. The args given to the program
@@ -153,9 +161,9 @@ def training_loop(train_ds, train_step_func, features_dim, args):
         if epoch==1 or epoch%100 == 0:
             print(f'Epoch {epoch} loss mean: {epoch_loss_mean.result()}')
     
-    return encoder, decoder
+    return (encoder, decoder)
 
-def train_step():
+def ae_train_step():
     @tf.function
     def train_one_step(inputs, encoder, decoder, optimizer, loss_func):
         with tf.GradientTape() as tape:
@@ -171,3 +179,41 @@ def train_step():
 
         return loss
     return train_one_step
+
+def if_training(train_ds):
+    """
+    The training of an Isolation Forest as anomaly detector
+
+    Parameters
+    ----------
+    train_ds: TF's Dataset. The trainind dataset
+    """
+    
+    # collect the training set
+    train_X = []
+    for x_batch_train, y_batch_train in train_ds:
+        train_X.append(x_batch_train)
+    train_X = np.concatenate(train_X, axis=0)
+
+    if_clf = IsolationForest(random_state=42, n_jobs=-1).fit(train_X)
+
+    return if_clf
+
+def ocs_training(train_ds):
+    """
+    The training of an one-class SVM as anomaly detector
+
+    Parameters
+    ----------
+    train_ds: TF's Dataset. The training dataset
+    """
+
+    # collect the training set
+    train_X = []
+    for x_batch_train, y_batch_train in train_ds:
+        train_X.append(x_batch_train)
+    train_X = np.concatenate(train_X, axis=0)
+
+    ocs_clf = OneClassSVM().fit(train_X)
+
+    return ocs_clf
